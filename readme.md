@@ -1,7 +1,7 @@
 # Web API For Infrastructure.Tech
 
-![build](https://github.com/infrastructure-tech/api_server/actions/workflows/docker-build.yml/badge.svg)
-![tests](https://github.com/infrastructure-tech/api_server/actions/workflows/django-unit-tests.yml/badge.svg)
+![build](https://github.com/infrastructure-tech/api/actions/workflows/docker-build.yml/badge.svg)
+![tests](https://github.com/infrastructure-tech/api/actions/workflows/django-unit-tests.yml/badge.svg)
 
 ## Initial Setup
 
