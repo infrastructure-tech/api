@@ -6,7 +6,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotFou
 from urllib.request import urlopen
 
 def get_remote_api(query):
-    query_string = f'https://web.infrastructure.tech/wp-json/{query}'
+    query_string = f'https://infrastructure.tech/wp-json/{query}'
     logging.info(f"Running query: {query_string}")
     return requests.get(query_string).content.decode("ascii")
 
@@ -20,7 +20,7 @@ def publish_package(request):
     if 'package' not in request.FILES:
         return HttpResponseBadRequest(f"Package file not found.")
 
-    url = 'https://web.infrastructure.tech/wp-json/gf/v2/forms/1/submissions'
+    url = 'https://infrastructure.tech/wp-json/gf/v2/forms/1/submissions'
     username = request.POST['username']
     password = request.POST['password']
     package_name = request.POST['package_name']
@@ -32,10 +32,10 @@ def publish_package(request):
     data = {
         'input_1' : package_name,
         'input_2' : version,
-        'input_5' : visibility
+        'input_4' : visibility
     }
     files = {
-        'input_6' : file
+        'input_3' : file
     }
 
     response = requests.post(url, auth=requests.auth.HTTPBasicAuth(username, password), data=data, files=files)
@@ -49,7 +49,7 @@ def download_package(request):
             return HttpResponseBadRequest(f"Please specify {var} in POST")
 
     package_name = request.POST['package_name']
-    url = f'https://web.infrastructure.tech/wp-json/wp/v2/package?slug={package_name}'
+    url = f'https://infrastructure.tech/wp-json/wp/v2/package?slug={package_name}'
 
     package_query = None
 
