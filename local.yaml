@@ -1,0 +1,123 @@
+---
+# Source: django/charts/postgres/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  labels:
+    app: infrastructure-api-postgres
+  name: infrastructure-api-postgres-secret
+data:
+  DB_USER: YXBpcHJv
+  DB_PASSWORD: ZHdVanRnSk5rcXNUdGl3Tg==
+---
+# Source: django/charts/postgres/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: infrastructure-api-postgres-service
+  labels:
+    app: infrastructure-api-postgres-service
+spec:
+#  type: LoadBalancer
+#  externalTrafficPolicy: Local
+  ports:
+  - name: http
+    port: 5432
+    protocol: TCP
+  selector:
+    app: infrastructure-api-postgres
+  type: ClusterIP
+---
+# Source: django/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: infrastructure-api-django-service
+  labels:
+    app: infrastructure-api-django
+spec:
+ # type: LoadBalancer
+ # externalTrafficPolicy: Local
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+  selector:
+    app: infrastructure-api-django
+---
+# Source: django/charts/postgres/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infrastructure-api-postgres
+  labels:
+    app: infrastructure-api-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infrastructure-api-postgres
+  template:
+    metadata:
+      labels:
+        app: infrastructure-api-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: DB_USER
+                  name: infrastructure-api-postgres-secret
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: DB_PASSWORD
+                  name: infrastructure-api-postgres-secret
+            - name: POSTGRES_DB
+              value: infrastructure-api-db
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: password
+          ports:
+            - name: http
+              containerPort: 5432
+---
+# Source: django/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infrastructure-api-django
+  labels:
+    app: infrastructure-api-django
+spec:
+  selector:
+    matchLabels:
+      app: infrastructure-api-django
+  template:
+    metadata:
+      labels:
+        app: infrastructure-api-django
+    spec:
+      containers:
+        - name: django
+          image: eons/api_server_professional:latest
+          imagePullPolicy: Always
+          env:
+          - name: API_PG_DB
+            value: infrastructure-api-db
+          - name: API_PG_USER
+            value: apipro
+          - name: API_PG_PASSWORD
+            value: dwUjtgJNkqsTtiwN
+          - name: API_PG_HOST
+            value: infrastructure-api-postgres-service
+          - name: API_PG_PORT
+            value: '5432'
+          - name: API_SECRET_KEY
+            value: RRwTG3SieGUY1DbfsccvEzoLj0TZAPfl
+          ports:
+          - name: django
+            containerPort: 80
