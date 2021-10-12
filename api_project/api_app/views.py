@@ -53,7 +53,7 @@ def download_package(request):
 
     package_query = None
 
-    if ['username', 'password'] in request.POST:
+    if 'username' in request.POST and 'password' in request.POST:
         url = url + '&status=private'
         username = request.POST['username']
         password = request.POST['password']
@@ -67,8 +67,11 @@ def download_package(request):
     package_json = json.loads(package_query)[0]
     file_url = package_json['file']
 
-    response = HttpResponse(urlopen(file_url), content_type='application/zip')
+    file_data = urlopen(file_url)
+
+    response = HttpResponse(file_data, content_type='application/zip')
     response['Content-Disposition'] = f'attachment; filename="{package_name}.zip"'
+    return response
 
 def index(request):
     return HttpResponse("It works!")
