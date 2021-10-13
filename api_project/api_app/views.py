@@ -27,7 +27,9 @@ def publish_package(request):
     version = request.POST['version'],
     visibility = 'private'
     if 'visibility' in request.POST:
-        visibility = request.POST['visiblity']
+        visibility = request.POST['visibility']
+        if visibility not in ['private', 'publish']:
+            return HttpResponseBadRequest(f"Visibility must be one of 'private' or 'publish'")
     file = request.FILES['package']
     data = {
         'input_1' : package_name,
@@ -39,7 +41,7 @@ def publish_package(request):
     }
 
     response = requests.post(url, auth=requests.auth.HTTPBasicAuth(username, password), data=data, files=files)
-    return response
+    return HttpResponse(content=response.content, status=response.status_code, content_type=response.headers['Content-Type'])
 
 
 def download_package(request):
@@ -57,8 +59,10 @@ def download_package(request):
         url = url + '&status=private'
         username = request.POST['username']
         password = request.POST['password']
+        # print(f"Querying {url}")
         package_query = requests.get(url, auth=requests.auth.HTTPBasicAuth(username, password)).content.decode("ascii")
     else:
+        # print(f"Querying {url}")
         package_query = requests.get(url).content.decode("ascii")
 
     if not package_query:
@@ -67,9 +71,9 @@ def download_package(request):
     package_json = json.loads(package_query)[0]
     file_url = package_json['file']
 
-    file_data = urlopen(file_url)
+    file_data = requests.get(file_url)
 
-    response = HttpResponse(file_data, content_type='application/zip')
+    response = HttpResponse(file_data, content_type='application/force-download')
     response['Content-Disposition'] = f'attachment; filename="{package_name}.zip"'
     return response
 

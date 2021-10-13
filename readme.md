@@ -3,7 +3,39 @@
 ![build](https://github.com/infrastructure-tech/api/actions/workflows/docker-build.yml/badge.svg)
 ![tests](https://github.com/infrastructure-tech/api/actions/workflows/django-unit-tests.yml/badge.svg)
 
-## Initial Setup
+## Usage
+
+This api is running on https://api.infrastructure.tech.  
+It has been made public for transparency and community feedback. If you find it useful for your own projects, fork or just copy it!  
+Be aware that a clone of this api server should not function outside the [Web Infrastructure](https://web.infrastructure.tech) hosting platform as the internal requests made do not hit the public-facing firewalls.  
+
+This API will grow as more is added to [Infrastructure Tech](https://infrastructure.tech).  
+More documentation will be coming later.
+
+### Package Repository
+
+You can publish packages (zip files) to and download them from the infrastructure.tech repository using this api.  
+This is especially useful for other [eons](https://eons.dev) and Web Infrastructure projects. For an example of how you might use this functionality, see how it is implemented in [the eons basic build system](https://github.com/eons-dev/ebbs). 
+
+There are 2 main methods for handling packages. Unfortunately, they will both be implemented as POST requests until HTTPBasicAuth can be passed through Django or a better solution is found.
+```python
+def publish_package(request):
+    required_vars = ['username', 'password', 'package_name', 'version']
+
+def download_package(request):
+    required_vars = ['package_name']
+```
+The associated URLs are:
+```python
+    path('v1/package/publish', views.publish_package)
+    path('v1/package/download', views.download_package)
+```
+
+When using `publish_package`, you may also specify `visibility` as "private" or "publish", which will make the package available to only you or the world, respectively. Finer controls on permissions and sharing will be added in a later release.
+
+When using `download_package`, you may specify `username` and `password` as you would for `publish_package`. Doing so will cause the api to search ONLY private packages, returning a 404 if you do not have a package by that name. Conversely, not specifying `username` and `password` will cause the api to search ONLY public packages.
+
+## Setup
 
 ### Notes
 
@@ -75,7 +107,7 @@ python -m pip install pip -U
 pip install -r requirements.txt
 ```
 
-## Run Django
+### Run Django
 
 ```
 source ./venv/bin/activate
