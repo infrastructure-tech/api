@@ -17,10 +17,12 @@ More documentation will be coming later.
 You can publish packages (zip files) to and download them from the infrastructure.tech repository using this api.  
 This is especially useful for other [eons](https://eons.dev) and Web Infrastructure projects. For an example of how you might use this functionality, see how it is implemented in [the eons basic build system](https://github.com/eons-dev/ebbs). 
 
-There are 2 main methods for handling packages. Unfortunately, they will both be implemented as POST requests until HTTPBasicAuth can be passed through Django or a better solution is found.
+There are 2 main methods for handling packages: publish (POST) and download (GET).
+Both queries take HTTP Basic Auth headers (i.e. username and password). While authentication is necessary for publishing, it is not required for downloading. However, if you wish to download private packages, you must authenticate. Additionally, public packages will be searched if no private package is found. Thus, you can safely supply your username and password with every request. 
+Here's the methods:
 ```python
 def publish_package(request):
-    required_vars = ['username', 'password', 'package_name', 'version']
+    required_vars = ['package_name', 'version']
 
 def download_package(request):
     required_vars = ['package_name']
@@ -31,9 +33,10 @@ The associated URLs are:
     path('v1/package/download', views.download_package)
 ```
 
-When using `publish_package`, you may also specify `visibility` as "private" or "publish", which will make the package available to only you or the world, respectively. Finer controls on permissions and sharing will be added in a later release.
+When using `publish_package`, you may also specify `visibility` as "private" or "publish", which will make the package available to only you or the world, respectively. Finer controls on permissions and sharing will be added in a later release.  
+You may also supply the optional fields of `description`, which will be shown on the package's page, and `package_type`, which will be used in a later version of this API. Note that if you use the eons naming schema, you do not need to specify `package_type`, as it will be automatically set from the package name.
 
-When using `download_package`, you may specify `username` and `password` as you would for `publish_package`. Doing so will cause the api to search ONLY private packages, returning a 404 if you do not have a package by that name. Conversely, not specifying `username` and `password` will cause the api to search ONLY public packages.
+When using `download_package`, you may specify `username` and `password` as you would for `publish_package`. Doing so will cause the api to search private packages before public ones. If no private nor public package is fround a 404 will be returned.
 
 ## Setup
 
