@@ -36,8 +36,9 @@ def publish_package(request):
 
     description = ''
     if 'description' in request.POST:
-        file = request.FILES['package']
         description = request.POST['description']
+
+    file = request.FILES['package']
 
     data = {
         'input_1': package_name,
