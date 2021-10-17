@@ -61,9 +61,9 @@ def get_auth(request):
     if token_type != 'Basic':
         return "", ""
 
-    print(f"credentials: {credentials}")
+    # print(f"credentials: {credentials}")
     username, _, password = base64.b64decode(credentials).decode('utf-8').partition(':')
-    print(f"username: {username}; password: {password}")
+    # print(f"username: {username}; password: {password}")
     return username, password
 
 
@@ -83,12 +83,12 @@ def download_package(request):
 
     if username and password:
         private_url = url + '&status=private'
-        print(f"Querying {private_url}")
+        # print(f"Querying {private_url}")
         package_query = requests.get(private_url, auth=requests.auth.HTTPBasicAuth(username, password)).content.decode("ascii")
         package_json = json.loads(package_query)
 
     if not package_json:
-        print(f"Querying {url}")
+        # print(f"Querying {url}")
         package_query = requests.get(url).content.decode("ascii")
         package_json = json.loads(package_query)
 
